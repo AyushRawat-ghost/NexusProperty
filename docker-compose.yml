@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # 🚀 The Python Processing Engine (Only maps to AWS services now)
+  backend:
+    build: ./backend
+    container_name: nexus_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://${RDS_USERNAME}:${RDS_PASSWORD}@${RDS_ENDPOINT}:${RDS_PORT}/${RDS_DB_NAME}
+      - FIREWORKS_API_KEY=${FIREWORKS_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - ./backend:/app
