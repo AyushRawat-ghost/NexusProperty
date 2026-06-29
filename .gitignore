@@ -89,7 +89,7 @@ coverage.xml
 .pyre/
 .pytype/
 
-# Machine Learning, Datasets & Models (boto3, torch, scikit-learn, pandas)
+# Machine Learning, Datasets & Models (boto3, torch, scikit-learn, pandas, numpy, xgboost)
 # ------------------------------------------------------------------------------
 data/
 datasets/
@@ -103,6 +103,10 @@ models/
 *.joblib
 *.h5
 *.pb
+*.xgb
+*.model
+*.npy
+*.npz
 
 # Node.js / Frontend
 # ------------------------------------------------------------------------------
