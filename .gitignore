@@ -94,6 +94,7 @@ coverage.xml
 data/
 datasets/
 models/
+backend/app/saved_models/
 *.pt
 *.pth
 *.ckpt

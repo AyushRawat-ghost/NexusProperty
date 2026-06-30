@@ -33,6 +33,10 @@ graph TD
 - Uses SQLAlchemy to manage connections to an AWS RDS PostgreSQL database.
 - Implements connection pooling (`pool_pre_ping=True`) for production resilience.
 
+### 4. ML Feature Imputer ([ml_inputer.py](file:///c:/Users/Ayush/Git%20Repo/NexusProperty/backend/app/ml_inputer.py))
+- **Model Training**: Pulls labeled training seeds from the `gold.core_listings` table (records populated via GenAI/LLM) to train two robust XGBoost regression models for predicting `luxury_score` and `proximity_score`.
+- **Accuracy Constraint**: Enforces a minimum accuracy threshold ($R^2 \ge 0.50$ by default) during validation. If model accuracy constraints are not satisfied, saving and database pipeline execution are aborted to prevent database pollution.
+- **Bulk Imputation**: Fetches remaining unlabeled listings from `silver.properties` that have no descriptions or failed GenAI processing, preprocesses features safely, predicts target scores, and batch-uploads completed vectors to the database in batches of 500.
 
 ---
 
@@ -87,6 +91,17 @@ docker-compose up --build -d
 > [!NOTE]
 > The current [Dockerfile](file:///c:/Users/Ayush/Git%20Repo/NexusProperty/backend/Dockerfile) is configured to start a FastAPI server (`app.main:app`). Ensure a `main.py` entrypoint is created inside `backend/app/` if you plan to run the REST API interface through Docker.
 
+### Option 3: Run ML Imputer Pipeline
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Run the ML Feature Imputer pipeline (which validates accuracy, runs predictions, and uploads results to AWS RDS):
+   ```bash
+   python -m app.ml_inputer
+   ```
+
 ---
 
 ## 📂 Project Structure
@@ -103,7 +118,9 @@ NexusProperty/
 │   └── app/
 │       ├── database.py   # Database connection pool and SessionLocal config
 │       ├── bronze_layer.py # Bronze ingestion engine pipeline
-│       └── silver_cleaner.py # Silver cleaner data transformation pipeline
+│       ├── silver_cleaner.py # Silver cleaner data transformation pipeline
+│       ├── gold_layer.py   # Gold layer GenAI pipeline and localized analytics
+│       └── ml_inputer.py # ML Imputation pipeline (XGBoost predicting missing luxury/proximity scores)
 └── frontend/
     └── src               # Client placeholder (for future UI development)
 ```

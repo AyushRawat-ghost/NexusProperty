@@ -99,16 +99,16 @@ class GoldProcessingEngine:
             print(f" Found {len(existing_ids)} rows already securely processed in Gold layer.")
 
             query = text("""
-                SELECT prop_id, prop_name, city, property_type, price, area_sqft, 
-                       bedrooms, bathrooms, furnishing, description 
-                FROM silver.properties 
-                WHERE description IS NOT NULL AND length(description) > 15;
-            """)
-            all_properties = db.execute(query).fetchall()
-            
-            candidates = [p for p in all_properties if p[0] not in existing_ids]
-            candidates = candidates[:max_rows] 
-            
+    SELECT s.prop_id, s.prop_name, s.city, s.property_type, s.price, s.area_sqft, 
+           s.bedrooms, s.bathrooms, s.furnishing, s.description 
+    FROM silver.properties s
+    LEFT JOIN gold.core_listings g ON s.prop_id = g.prop_id
+    WHERE s.description IS NOT NULL 
+      AND length(s.description) > 15
+      AND g.prop_id IS NULL -- Only fetches remaining unparsed entries!
+    LIMIT {max_rows};
+""")
+            candidates = db.execute(query).fetchall()
             total_candidates = len(candidates)
             print(f"Total remaining items to parse in this execution block: {total_candidates}")
             
